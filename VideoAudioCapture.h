@@ -5,14 +5,9 @@
 #include "gobject/gobject.h"
 #include "gst/app/gstappsink.h"
 #include "spdlog/spdlog.h"
-
-class VideoAudioOption{
-
-
-public:
-    int height;
-    int width;
-};
+#include "VideoAudioOption.h"
+#include "imageFormat.h"
+#include "gstBufferManager.h"
 class VideoAudioCapture {
     VideoAudioOption mOptions;
     std::string mLaunchStr;
@@ -43,5 +38,7 @@ class VideoAudioCapture {
     GstElement*  mPipeline;
     _GstAppSink* mAppSink;
     bool Capture(void** output, imageFormat format, uint64_t timeout, int* status );
+
+    gstBufferManager *mBufferManager;
 
 };

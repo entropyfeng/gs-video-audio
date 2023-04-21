@@ -1,7 +1,7 @@
 
 #include <sstream>
 #include "VideoAudioCapture.h"
-
+#include "gstBufferManager.h"
 static const char* gst_stream_status_string( GstStreamStatusType status )
 {
     switch(status)
