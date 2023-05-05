@@ -152,7 +152,7 @@ bool VideoAudioCapture::initPipeline() {
 
 bool VideoAudioCapture::buildLaunchStr() {
     std::ostringstream ss;
-    ss<<"filesrc location=/home/gst-worspace/samples/test.mp4 ! qtdemux name=demux demux.video_0 ! queue ! decodebin ! videoconvert ! appsink name=mysink sync=false";
+    ss<<"filesrc location=/home/gst-worspace/samples/test.mp4 ! qtdemux name=demux demux.video_0 ! queue ! decodebin ! videoconvert ! video/x-raw format=(string)RGB !   appsink name=mysink sync=false";
     return true;
 }
 
@@ -225,40 +225,29 @@ void VideoAudioCapture::checkBuffer() {
     release_return;
 }
 
-#define RETURN_STATUS(code)  { if( status != NULL ) { *status=(code); } return ((code) == videoSource::OK ? true : false); }
-bool VideoAudioCapture::Capture( void** output, imageFormat format, uint64_t timeout, int* status )
+
+bool VideoAudioCapture::Capture( void** output, imageFormat format, uint64_t timeout, int* status)
 {
-
-
-    // verify the output pointer exists
-    if( !output )
-        RETURN_STATUS(ERROR);
 
     // confirm the stream is open
     if( !mStreaming || mEOS )
     {
-        if( !Open() )
-            RETURN_STATUS(mEOS ? EOS : ERROR);
-    }
+        if(!isOpen()){
 
+        }
+    }
     // wait until a new frame is recieved
-    const int result = mBufferManager->Dequeue(output, format, timeout);
+    auto result= mBufferManager->Dequeue(format, timeout);
+    if( result == nullptr){
+        spdlog::error("gstDecoder -- failed to dequeue buffer for capture");
 
-    if( result < 0 )
-    {
-        LogError(LOG_GSTREAMER "gstDecoder::Capture() -- an error occurred retrieving the next image buffer\n");
-        RETURN_STATUS(ERROR);
-    }
-    else if( result == 0 )
-    {
-        LogWarning(LOG_GSTREAMER "gstDecoder::Capture() -- a timeout occurred waiting for the next image buffer\n");
-        RETURN_STATUS(TIMEOUT);
+
     }
 
-    mLastTimestamp = mBufferManager->GetLastTimestamp();
-    mRawFormat = mBufferManager->GetRawFormat();
+    //mLastTimestamp = mBufferManager->GetLastTimestamp();
+    //mRawFormat = mBufferManager->GetRawFormat();
 
-    RETURN_STATUS(OK);
+   // RETURN_STATUS(OK);
 }
 
 void VideoAudioCapture::checkMsgBus() {

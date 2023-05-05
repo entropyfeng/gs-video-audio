@@ -8,26 +8,20 @@
 #include "VideoAudioOption.h"
 #include "imageFormat.h"
 #include "gstBufferManager.h"
+#include "blockingconcurrentqueue.h"
 class VideoAudioCapture {
     VideoAudioOption mOptions;
     std::string mLaunchStr;
-    VideoAudioCapture() {
-
-    }
 
     void Close();
 
     void Open();
-
+    bool isOpen();
     void checkMsgBus();
 
     void checkBuffer();
 
-    bool buildLaunchStr();
-
     bool init();
-
-    bool initPipeline();
 
     static GstFlowReturn onPreroll(_GstAppSink *sink, void *user_data);
 
@@ -39,6 +33,19 @@ class VideoAudioCapture {
     _GstAppSink* mAppSink;
     bool Capture(void** output, imageFormat format, uint64_t timeout, int* status );
 
-    gstBufferManager *mBufferManager;
+    std::unique_ptr<gstBufferManager> mBufferManager;
+
+public:
+    VideoAudioCapture() {
+
+    }
+
+    bool buildLaunchStr();
+
+    bool initPipeline();
+
+private:
+    bool mEOS;
+    bool mStreaming;
 
 };
