@@ -26,8 +26,8 @@
 #include <iostream>
 #include <stdio.h>
 
-#include "filesystem.h"
-#include "logging.h"
+#include "filesystem"
+#include "spdlog.h"
 
 
 // toLower
@@ -83,7 +83,8 @@ bool URI::Parse( const char* uri )
 		{
 			protocol = "v4l2";
 		}
-		else if( string.find(".") != std::string::npos || string.find("/") != std::string::npos || fileExists(string.c_str()) )
+
+		else if( string.find(".") != std::string::npos || string.find("/") != std::string::npos || std::filesystem::exists(string.c_str()) )
 		{
 			protocol = "file";
 		}
@@ -97,7 +98,7 @@ bool URI::Parse( const char* uri )
 		}
 		else
 		{
-			LogError("URI -- invalid resource or file path:  %s\n", string.c_str());
+		    spdlog::error("URI -- invalid resource or file path: {}",string.c_str());
 			return false;
 		}
 
@@ -107,7 +108,7 @@ bool URI::Parse( const char* uri )
 		string = protocol + "://";
 
 		if( protocol == "file" )
-			string += absolutePath(location);	// URI paths should be absolute
+			string += std::filesystem::absolute(location);	// URI paths should be absolute
 		else
 			string += location;
 	}
@@ -123,7 +124,7 @@ bool URI::Parse( const char* uri )
 	{
 		if( sscanf(location.c_str(), "/dev/video%i", &port) != 1 )
 		{
-			LogError("URI -- failed to parse V4L2 device ID from %s\n", location.c_str());
+		    spdlog::error("URI -- failed to parse V4L2 device ID from {}", location.c_str());
 			return false;
 		}
 	}
@@ -131,7 +132,7 @@ bool URI::Parse( const char* uri )
 	{
 		if( sscanf(location.c_str(), "%i", &port) != 1 )
 		{
-			LogError("URI -- failed to parse MIPI CSI device ID from %s\n", location.c_str());
+		    spdlog::error("URI -- failed to parse MIPI CSI device ID from {}", location.c_str());
 			return false;
 		}
 	}
@@ -139,13 +140,13 @@ bool URI::Parse( const char* uri )
 	{
 		if( sscanf(location.c_str(), "%i", &port) != 1 )
 		{
-			LogVerbose("URI -- using default display device 0\n");
+		    spdlog::info("URI -- using default display device 0");
 			port = 0;
 		}
 	}
 	else if( protocol == "file" )
 	{
-		extension = fileExtension(location);
+		extension = std::filesystem::path(location).extension();   //std保留.
 	}
 	else
 	{		
@@ -185,12 +186,12 @@ bool URI::Parse( const char* uri )
 			{
 				if( protocol == "rtsp" )
 				{
-					LogWarning("URI -- missing/invalid IP port from %s, default to port 554\n", string.c_str());
+				    spdlog::warn("URI -- missing/invalid IP port from {}, default to port 554", string.c_str());
 					port = 554;
 				}
 				else
 				{
-					LogError("URI -- failed to parse IP port from %s\n", string.c_str());
+				    spdlog::error("URI -- failed to parse IP port from {}", string.c_str());
 					return false;
 				}
 			}
@@ -210,16 +211,16 @@ void URI::Print( const char* prefix ) const
 {
 	if( !prefix )
 		prefix = "";
+    spdlog::info("{}-- URI: {}", prefix, string.c_str());
+    spdlog::info("{}   - protocol:  {}", prefix, protocol.c_str());
+    spdlog::info("{}   - location:  {}", prefix, location.c_str());
 
-	LogInfo("%s-- URI: %s\n", prefix, string.c_str());
-	LogInfo("%s   - protocol:  %s\n", prefix, protocol.c_str());
-	LogInfo("%s   - location:  %s\n", prefix, location.c_str());
 
 	if( extension.size() > 0 )
-		LogInfo("%s   - extension: %s\n", prefix, extension.c_str());
+	    spdlog::info("{}   - extension: {}", prefix, extension.c_str());
 
 	if( port > 0 )
-		LogInfo("%s   - port:      %i\n", prefix, port);
+	    spdlog::info("{}   - port:      {}", prefix, port);
 
 	//LogInfo("%s   - username:  %s\n", prefix, username.c_str());
 	//LogInfo("%s   - password:  %s\n", prefix, password.c_str());
