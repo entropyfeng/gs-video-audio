@@ -86,6 +86,9 @@ imageFormat gst_parse_format( GstStructure* caps )
         return imageFormat::IMAGE_BAYER_GRBG;
     else if( strcasecmp(format, "rggb") == 0 )
         return imageFormat::IMAGE_BAYER_RGGB;
+    else if (strcasecmp(format,"rgba")==0){
+        return imageFormat::IMAGE_RGBA8;
+    }
 
     return imageFormat::IMAGE_UNKNOWN;
 }
