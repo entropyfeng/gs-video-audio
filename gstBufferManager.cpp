@@ -132,3 +132,14 @@ bool gstBufferManager::Enqueue(GstBuffer *gstBuffer, GstCaps *gstCaps){
 
     return true;
 }
+
+gstBufferManager::~gstBufferManager() {
+
+
+}
+
+gstBufferManager::gstBufferManager(std::unique_ptr<VideoAudioOption>option) {
+
+    mOptions=std::move(option);
+
+}

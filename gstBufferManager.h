@@ -10,8 +10,8 @@ public:
     /**
      * Constructor
      */
-    gstBufferManager( VideoAudioOption* options );
-
+    gstBufferManager( std::unique_ptr<VideoAudioOption>option);
+    //gstBufferManager();
     /**
      * Destructor
      */
@@ -42,7 +42,7 @@ public:
      */
     inline uint64_t GetFrameCount() const	{ return mFrameCount; }
 
-protected:
+public:
 
 
     imageFormat   mFormatYUV;  /**< The YUV colorspace format coming from appsink (typically NV12 or YUY2) */
@@ -50,7 +50,7 @@ protected:
     PMRQueue    mTimestamps; /**< Ringbuffer of timestamps that come from appsink */
     PMRQueue    mBufferRGB;  /**< Ringbuffer of frames that have been converted to RGB colorspace */
     uint64_t      mLastTimestamp;  /**< Timestamp of the latest dequeued frame */
-    VideoAudioOption* mOptions;    /**< Options of the gstDecoder / gstCamera object */
+    std::unique_ptr<VideoAudioOption> mOptions;    /**< Options of the gstDecoder / gstCamera object */
     uint64_t	  mFrameCount; /**< Total number of frames that have been recieved */
 
 };

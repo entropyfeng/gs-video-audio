@@ -10,12 +10,13 @@
 #include "gstBufferManager.h"
 #include "blockingconcurrentqueue.h"
 class VideoAudioCapture {
+public:
     VideoAudioOption mOptions;
     std::string mLaunchStr;
 
     void Close();
 
-    void Open();
+    bool Open();
     bool isOpen();
     void checkMsgBus();
 
@@ -31,13 +32,13 @@ class VideoAudioCapture {
     GstBus*      mBus;
     GstElement*  mPipeline;
     _GstAppSink* mAppSink;
-    bool Capture(void** output, imageFormat format, uint64_t timeout, int* status );
 
+    std::shared_ptr<std::vector<uint8_t>> Capture(imageFormat format, uint64_t timeout, int* status);
     std::unique_ptr<gstBufferManager> mBufferManager;
 
 public:
-    VideoAudioCapture() {
-
+    VideoAudioCapture(std::unique_ptr<VideoAudioOption> option) {
+        mBufferManager=std::make_unique<gstBufferManager>(std::move(option));
     }
 
     bool buildLaunchStr();
@@ -45,7 +46,7 @@ public:
     bool initPipeline();
 
 private:
-    bool mEOS;
-    bool mStreaming;
+    bool mEOS= false;
+    bool mStreaming= false;
 
 };

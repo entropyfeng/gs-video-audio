@@ -9,7 +9,9 @@ public:
     std::pmr::polymorphic_allocator<std::vector<uint8_t>> allocator{&pool};
     moodycamel::BlockingConcurrentQueue<std::shared_ptr<std::vector<uint8_t>>> queue;
 
-    PMRQueue()=default;
+    PMRQueue(): queue(moodycamel::BlockingConcurrentQueue<std::shared_ptr<std::vector<uint8_t>>>()){
+
+    };
     std::shared_ptr<std::vector<uint8_t>>prepareBuffer(long size){
         auto obj= allocator.allocate_object<std::vector<uint8_t>>(size);
         auto ptr=  std::shared_ptr<std::vector<uint8_t>>(obj,[this](std::vector<uint8_t>* ptr){
@@ -22,9 +24,10 @@ public:
 
     std::shared_ptr<std::vector<uint8_t>> next(){
         std::shared_ptr<std::vector<uint8_t>> sharedPtr;
-        queue.wait_dequeue(sharedPtr);
+        auto x=std::make_shared<std::vector<uint8_t>>();
+        queue.wait_dequeue(x);
 
-        return sharedPtr;
+        return x;
     }
     ~PMRQueue(){
         pool.release();

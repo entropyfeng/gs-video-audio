@@ -1,5 +1,6 @@
 #pragma once
 #include "URI.h"
+#include "atomic"
 enum Codec
 {
     CODEC_UNKNOWN = 0,		/**< Unknown/unsupported codec */
@@ -12,13 +13,14 @@ enum Codec
     CODEC_MPEG4,			/**< MPEG4 (decode only) */
     CODEC_MJPEG			/**< MJPEG */
 };
+
+static std::atomic<bool> gstreamer_initialized = false;
+
+
 class VideoAudioOption{
 public:
     int height;
     int width;
-
-
-
     URI resource;
 
     /**
