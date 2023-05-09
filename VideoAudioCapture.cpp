@@ -179,8 +179,7 @@ bool VideoAudioCapture::initPipeline() {
 
 bool VideoAudioCapture::buildLaunchStr() {
     std::ostringstream ss;
-    ss
-            << "filesrc location=/home/topeet/gst-workspace/samples/test.mp4 ! qtdemux name=demux demux.video_0 ! queue ! decodebin ! videoconvert ! video/x-raw ,format=(string)RGBA !   appsink name=mysink sync=false";
+    ss<< "filesrc location=/home/topeet/gst-workspace/samples/test.mp4 ! qtdemux name=demux demux.video_0 ! queue ! decodebin ! videoconvert ! video/x-raw ,format=(string)RGBA !   appsink name=mysink sync=false";
     mLaunchStr = ss.str();
     return true;
 }
@@ -263,8 +262,10 @@ void VideoAudioCapture::checkMsgBus() {
 GstFlowReturn VideoAudioCapture::onBuffer(_GstAppSink *sink, void *user_data) {
     //printf(LOG_GSTREAMER "gstDecoder -- onBuffer()\n");
 
-    if (!user_data)
+    if (!user_data){
         return GST_FLOW_OK;
+    }
+
 
     auto *dec = (VideoAudioCapture *) user_data;
 

@@ -112,6 +112,7 @@ bool gstBufferManager::Enqueue(GstBuffer *gstBuffer, GstCaps *gstCaps){
 
     spdlog::debug("gstBufferManager -- recieved {}x{} frame ({} bytes)", width, height, gstSize);
 
+
     auto yuvPtr=mBufferYUV.prepareBuffer((long)gstSize);
     memcpy(yuvPtr->data(), gstData, gstSize);
 
